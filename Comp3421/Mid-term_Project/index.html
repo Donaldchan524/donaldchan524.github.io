@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- CSS file -->
+    <link rel="stylesheet" type="text/css" href="style.css">
+    
+    <!-- Java Script file-->
+    <script tpye="text/javascript" src="javascript.js"></script>
+    
+    <!--Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+   
+    <title>Chan Tsz Hei</title>
+    
+</head>
+<body>    
+    <div class="container-fluid">
+        <div class="row justify-content-center bg-dark sticky-top">
+            <div class="col-lg-10 col-md-10 col-sm-12 col-xs-12">
+                <!--nav bar -->
+                <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+                    <a class="navbar-brand" href="#title">Donald Chan</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item active">
+                                <a class="nav-link" href="#introduction">Introduction<span class="sr-only">(current)</span></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#education">Education</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#QandA">Q &amp; A</a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!--short sentence -->
+        <div class="row justify-content-center header" id="title">
+           <div class="col-lg-10 col-md-10 col-sm-12 col-xs-12">
+                <div class="title">
+                    Zero in your target, and go for it
+                </div>
+            </div>
+        </div>
+        
+        <!-- personal information -->
+        <div class="row justify-content-center personal">
+            <div class="col-lg-10 col-md-10 col-sm-12 col-xs-12">
+                <table class="personal_information">
+                    <tr>
+                       <th colspan="3" class="nickname">Donald Chan</th>
+                        
+                    </tr>
+                    <tr>
+                        <th width="20%">Name:</th>
+                        <td width="60%">Chan Tsz Hei</td>
+                        <td rowspan="4" width="20%"><img src="image/ChanTszHei.jpg" alt=""></td>
+                    </tr>
+                    <tr>
+                        <th>Age:</th>
+                        <td>20</td>
+                    </tr>
+                    <tr>
+                        <th>Occupation:</th>
+                        <td>Student</td>
+                    </tr>
+                    <tr>
+                        <th>City:</th>
+                        <td>Hong Kong</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        
+        
+        <!-- introduction & education -->
+        <div class="row justify-content-center intro_and_educ">
+            <div class="col-lg-4 col-md-10 col-sm-12 col-xs-12 introduction" id="introduction">
+                <h1>Introduction</h1>
+                <span>My name is Donald, and I’m a first-year student of the 2-year BSc (Hons) in Data Science and Analytics programme of The Hong Kong Polytechnic University (PolyU). I just finished a Higher Diploma at the Hong Kong Institute of Vocational Education(IVE).  Data science is an interesting way to observe the world from the raw data.</span>
+                <br><br>
+                <span>My favourite sport is basketball and I think sport is important in our life. Sport is a good action to help us take a work-life balance. Also, I like playing video game, such as Minecraft, Mario Kart and Splatoon.</span>
+                
+            </div>
+            <div class="col-lg-6 col-md-10 col-sm-12 col-xs-12 education" id="education">
+                <h1>Education</h1>
+                <table class="school">
+                    <tr>
+                        <th rowspan="5" class="left_arrow" ><button onclick="showschool(1)">&lt;</button></th>
+                        <td id="organization">Organization: The Hong Kong Polytechnic University</td>
+                        <th rowspan="5" width="30%"><img src="image/polyu.jpg" id="logo"></th>
+                        <th rowspan="5" class="right_arrow" width="10px"><button onclick="showschool(-1)">&gt;</button></th>
+                    </tr>
+                    <tr>
+                        <td id="course">Course: BSc (Hons) in Data Science and Analytics</td>
+                    </tr>
+                    <tr>
+                        <td id="year">Year: 2019 - present</td>
+                    </tr>
+                    <tr>
+                        <td id="location">Location: Hung Hom, Kowloon, Hong Kong</td>
+                    </tr>
+                    <tr>
+                        <td>Website: <a href="https://www.polyu.edu.hk/en/" id="website" target="_blank">https://www.polyu.edu.hk/en/</a></td>
+                    </tr>
+               </table>
+            </div>
+        </div>
+        
+        <!-- Q & A -->
+        <div class="row justify-content-center QandA" id="QandA">
+            <div class="col-lg-10 col-md-10 col-sm-12 col-xs-12">
+                <h1>Q &amp; A</h1>
+                <form name="question" onSubmit="check_answer()">
+                    <div class="row">
+                       
+                        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                            <p>1. My nickname?</p>
+                            <input type="radio" name="q1" value="a" required="required">Billy<br>           
+                            <input type="radio" name="q1" value="b" >Donald<br>             
+                            <input type="radio" name="q1" value="c" >Kalven <br>            
+                            <input type="radio" name="q1" value="d" >Tom<br>                   
+                            <br>
+                        </div>
+                        
+                        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                            <p>2. My age is?</p>
+                            <span>Age: <span id="age"></span></span>
+                            <input id="amount" type="number" value="50" min="0" max="100" oninput="slider.value=amount.value">
+                            <input type="range" id="slider" name="q2" min="0" max="100" value="50" oninput="amount.value=slider.value">
+                            <br>
+                        </div>
+                        
+                        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                        <p>3. What is my favourable habit?</p>
+                            <input type="radio" name="q3" value="a" required="required">Badminton<br>           
+                            <input type="radio" name="q3" value="b" >Basketball <br>             
+                            <input type="radio" name="q3" value="c" >Football<br>            
+                            <input type="radio" name="q3" value="d" >Table Tennis<br>
+                            <br>
+                        </div>
+                        
+                        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                        <p>4. What is my major?</p>
+                            <input type="radio" name="q4" value="a" required="required">Accounting<br>           
+                            <input type="radio" name="q4" value="b" >Computer Engineering <br>             
+                            <input type="radio" name="q4" value="c" >Computer Science<br>            
+                            <input type="radio" name="q4" value="d" >Data Science and Analytics<br>
+                            <br>
+                        </div>
+                        
+                        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                        <p>5. Where received my Higher Diploma?</p>
+                            <input type="radio" name="q5" value="a" required="required">CUSCS (School of Continuing and Professional Studies)<br>           
+                            <input type="radio" name="q5" value="b" >HKCC (Hong Kong Community College) <br>             
+                            <input type="radio" name="q5" value="c" >HKU Space (HKU School of Professional and Continuing Education)<br>            
+                            <input type="radio" name="q5" value="d" >IVE (Hong Kong Institute of Vocational Education (Tsing Yi))<br>
+                            <br>
+                        </div>
+                        
+                        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                            <p>6. Which one is my studying university?</p>
+                            <input type="radio" name="q6" value="a" required="required">City University of Hong Kong<br>           
+                            <input type="radio" name="q6" value="b" >Hong Kong Baptist University <br>             
+                            <input type="radio" name="q6" value="c" >The Education University of Hong Kong<br>            
+                            <input type="radio" name="q6" value="d" >The Hong Kong Polytechnic University<br>
+                            <br>
+                        </div>
+                    </div>
+                    <center><input type="submit" value="submit" ></center>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    
+    
+</body>
+</html>
