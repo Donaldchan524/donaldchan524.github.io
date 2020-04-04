@@ -21,7 +21,7 @@
 <body>    
     <div class="container-fluid">
         <div class="row justify-content-center bg-dark sticky-top">
-            <div class="col-lg-10 col-md-10 col-sm-12 col-xs-12">
+            <div class="col-lg-10 col-md-10">
                 <!--nav bar -->
                 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
                     <a class="navbar-brand" href="#title">Donald Chan</a>
@@ -38,6 +38,12 @@
                                 <a class="nav-link" href="#education">Education</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link" href="#skill">Skill</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#achievement">Achievement</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" href="#QandA">Q &amp; A</a>
                             </li>
                         </ul>
@@ -48,7 +54,7 @@
 
         <!--short sentence -->
         <div class="row justify-content-center header" id="title">
-           <div class="col-lg-10 col-md-10 col-sm-12 col-xs-12">
+           <div class="col-lg-10 col-md-10">
                 <div class="title">
                     Zero in your target, and go for it
                 </div>
@@ -57,7 +63,7 @@
         
         <!-- personal information -->
         <div class="row justify-content-center personal">
-            <div class="col-lg-10 col-md-10 col-sm-12 col-xs-12">
+            <div class="col-lg-10 col-md-10">
                 <table class="personal_information">
                     <tr>
                        <th colspan="3" class="nickname">Donald Chan</th>
@@ -66,7 +72,7 @@
                     <tr>
                         <th width="20%">Name:</th>
                         <td width="60%">Chan Tsz Hei</td>
-                        <td rowspan="4" width="20%"><img src="image/ChanTszHei.jpg" alt=""></td>
+                        <td rowspan="4" width="20%"><img src="image/ChanTszHei.jpg" alt="" class="rounded-circle"></td>
                     </tr>
                     <tr>
                         <th>Age:</th>
@@ -88,21 +94,21 @@
         
         <!-- introduction & education -->
         <div class="row justify-content-center intro_and_educ">
-            <div class="col-lg-4 col-md-10 col-sm-12 col-xs-12 introduction" id="introduction">
+            <div class="col-lg-4 col-md-10 introduction" id="introduction">
                 <h1>Introduction</h1>
                 <span>My name is Donald, and I’m a first-year student of the 2-year BSc (Hons) in Data Science and Analytics programme of The Hong Kong Polytechnic University (PolyU). I just finished a Higher Diploma at the Hong Kong Institute of Vocational Education(IVE).  Data science is an interesting way to observe the world from the raw data.</span>
                 <br><br>
                 <span>My favourite sport is basketball and I think sport is important in our life. Sport is a good action to help us take a work-life balance. Also, I like playing video game, such as Minecraft, Mario Kart and Splatoon.</span>
                 
             </div>
-            <div class="col-lg-6 col-md-10 col-sm-12 col-xs-12 education" id="education">
+            <div class="col-lg-6 col-md-10 education" id="education">
                 <h1>Education</h1>
                 <table class="school">
                     <tr>
-                        <th rowspan="5" class="left_arrow" ><button onclick="showschool(1)">&lt;</button></th>
+                        <th rowspan="5" class="left_arrow" ><button onclick="showschool(1)" class="btn btn-secondary">&#10094;</button></th>
                         <td id="organization">Organization: The Hong Kong Polytechnic University</td>
                         <th rowspan="5" width="30%"><img src="image/polyu.jpg" id="logo"></th>
-                        <th rowspan="5" class="right_arrow" width="10px"><button onclick="showschool(-1)">&gt;</button></th>
+                        <th rowspan="5" class="right_arrow" width="10px"><button onclick="showschool(-1)" class="btn btn-secondary">&#10095;</button></th>
                     </tr>
                     <tr>
                         <td id="course">Course: BSc (Hons) in Data Science and Analytics</td>
@@ -120,14 +126,78 @@
             </div>
         </div>
         
+        <!-- Skill & Achievement-->
+        <div class="row justify-content-center skill_and_achievement">
+            <!-- Skill -->
+            <div class="col-lg-5 col-md-10 skill" id="skill">
+                <h1>Skill</h1>
+                <table>
+                    <tr>
+                        <th colspan="2">
+                            Computing Languages:
+                        </th>
+                        <th colspan="2">
+                            Software:
+                        </th>
+                    </tr>
+                    <tr>
+                       <td>Java</td>
+                        <td>JavaScript</td>
+                        <td>R Studio</td>
+                        <td>Anaconda</td>
+                    </tr>
+                    <tr>
+                        <td>SQL</td>
+                        <td>R</td>
+                        <td>Tableau</td>
+                        <td>Brackets</td>
+                    </tr>
+                    <tr>
+                        <td>html</td>
+                        <td>CSS</td>
+                        <td>VMware</td>
+                        <td>Microsoft Office</td>
+                    </tr>
+                </table>
+            </div>            
+        
+            <!-- Achievement -->
+            <div class="col-lg-5 col-md-10 achievement" id="achievement">
+                <h1>Achievement</h1>
+                <table>
+                    <tr>
+                        <th colspan="4">
+                            Achievement:
+                        </th>
+                    </tr>
+                    <tr>
+                        <td>2020 </td>
+                        <td>HKSAR Government Scholarship 2019/20 </td>
+                    </tr>
+                    <tr>
+                        <td>2019 </td>
+                        <td>First Class Award in China Pan-Pearl River Delta Region IT Project Competition 2019</td>
+                    </tr>
+                    <tr>
+                        <td>2019 </td>
+                        <td>HKSAR Government Scholarship Fund – Reaching Out Award</td>
+                    </tr>
+                    <tr>
+                        <td>2018 </td>
+                        <td>Second prize of TipDM Cup Data Analysis Vocational Skill Competition</td>
+                    </tr>
+                </table>
+            </div>            
+        </div>
+        
+        
         <!-- Q & A -->
         <div class="row justify-content-center QandA" id="QandA">
-            <div class="col-lg-10 col-md-10 col-sm-12 col-xs-12">
+            <div class="col-lg-10 col-md-10">
                 <h1>Q &amp; A</h1>
                 <form name="question" onSubmit="check_answer()">
                     <div class="row">
-                       
-                        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                        <div class="col-lg-4 col-md-6">
                             <p>1. My nickname?</p>
                             <input type="radio" name="q1" value="a" required="required">Billy<br>           
                             <input type="radio" name="q1" value="b" >Donald<br>             
@@ -136,7 +206,7 @@
                             <br>
                         </div>
                         
-                        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                        <div class="col-lg-4 col-md-6">
                             <p>2. My age is?</p>
                             <span>Age: <span id="age"></span></span>
                             <input id="amount" type="number" value="50" min="0" max="100" oninput="slider.value=amount.value">
@@ -144,7 +214,7 @@
                             <br>
                         </div>
                         
-                        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                        <div class="col-lg-4 col-md-6">
                         <p>3. What is my favourable habit?</p>
                             <input type="radio" name="q3" value="a" required="required">Badminton<br>           
                             <input type="radio" name="q3" value="b" >Basketball <br>             
@@ -153,7 +223,7 @@
                             <br>
                         </div>
                         
-                        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                        <div class="col-lg-4 col-md-6">
                         <p>4. What is my major?</p>
                             <input type="radio" name="q4" value="a" required="required">Accounting<br>           
                             <input type="radio" name="q4" value="b" >Computer Engineering <br>             
@@ -162,7 +232,7 @@
                             <br>
                         </div>
                         
-                        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                        <div class="col-lg-4 col-md-6">
                         <p>5. Where received my Higher Diploma?</p>
                             <input type="radio" name="q5" value="a" required="required">CUSCS (School of Continuing and Professional Studies)<br>           
                             <input type="radio" name="q5" value="b" >HKCC (Hong Kong Community College) <br>             
@@ -171,7 +241,7 @@
                             <br>
                         </div>
                         
-                        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                        <div class="col-lg-4 col-md-6">
                             <p>6. Which one is my studying university?</p>
                             <input type="radio" name="q6" value="a" required="required">City University of Hong Kong<br>           
                             <input type="radio" name="q6" value="b" >Hong Kong Baptist University <br>             
@@ -180,7 +250,7 @@
                             <br>
                         </div>
                     </div>
-                    <center><input type="submit" value="submit" ></center>
+                    <center><input type="submit" value="submit" class="btn btn-secondary"></center>
                 </form>
             </div>
         </div>
