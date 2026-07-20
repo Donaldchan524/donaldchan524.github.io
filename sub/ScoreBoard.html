@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <link rel="manifest" href="manifest.json">
+    <!-- iOS/iPadOS 專屬 PWA 設定 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="比賽紀錄">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Match Record</title>
+    <style>
+        :root { --bg: #121212; --card: #1c1c1e; --accent: #0a84ff; --text: #ffffff; --danger: #ff453a; --success: #32d74b; }
+        /* 加入 overscroll-behavior 防止 iPad 滑動彈跳 */
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; overflow-x: hidden; overscroll-behavior: none; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #666; }
+
+        .view { display: none; padding: env(safe-area-inset-top, 20px) 20px 20px; box-sizing: border-box; min-height: 100dvh; max-width: 1800px; margin: 0 auto; width: 100%; }
+        .view.active { display: block; }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: clamp(10px, 2vh, 20px); }
+        
+        .controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .action-btns { display: flex; gap: 10px; }
+        .action-btns button { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #333; background: var(--card); color: white; cursor: pointer; transition: background 0.2s; white-space: nowrap; font-size: 15px; }
+        .action-btns button:hover { background: #2c2c2e; }
+        .search-box { width: 100%; padding: 12px; border-radius: 10px; border: none; background: var(--card); color: white; font-size: 16px; box-sizing: border-box; }
+        
+        #listContainer { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; padding-bottom: 80px; }
+        .match-card { background: var(--card); min-height: 90px; border-radius: 15px; display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border-left: 5px solid var(--accent); gap: 10px; transition: transform 0.2s, box-shadow 0.2s; }
+        .match-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.3); }
+        .match-info { text-align: left; flex-grow: 1; overflow: hidden; }
+        .match-date { font-size: 12px; color: #888; margin-bottom: 4px; }
+        .match-time-tag { font-size: 11px; color: var(--accent); margin-bottom: 6px; font-weight: bold; }
+        .match-score { font-size: clamp(16px, 4vw, 20px); font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* 鎖定計分板高度，並將內容平均分散 */
+        .score-wrapper { height: calc(100dvh - env(safe-area-inset-top, 20px) - 100px); display: flex; flex-direction: column; justify-content: space-between; }
+
+
+        /* 大幅減少橫向時的留白 */
+        .timer-box { background: var(--card); padding: clamp(5px, 2dvh, 20px) 20px; border-radius: 20px; margin: 0; text-align: center; border: 1px solid #2c2c2e; }
+        #display { font-size: clamp(50px, 15dvh, 120px); font-weight: 200; font-variant-numeric: tabular-nums; background: transparent; border: none; color: white; text-align: center; width: 100%; outline: none; cursor: text; transition: color 0.2s; }
+        #display.running { color: var(--success); cursor: default; }
+        
+        .teams { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin: 0; flex-grow: 1; }
+        .team-container { flex: 1; display: flex; flex-direction: column; align-items: center; width: 40%; }
+        
+        /* 嚴格限制計分方塊大小，確保橫向不破版 (取寬度與高度的最小值) */
+        .score-box { width: min(40vw, 32dvh); height: min(40vw, 32dvh); background: #2c2c2e; border-radius: 24px; display: flex; justify-content: center; align-items: center; font-size: clamp(40px, 12dvh, 120px); font-weight: bold; user-select: none; border: 2px solid #333; cursor: pointer; transition: background 0.2s; touch-action: none; }
+        .score-box:hover { background: #3a3a3c; }
+        
+        .team-input { background: transparent; border: none; border-bottom: 1px solid #444; color: white; text-align: center; font-size: clamp(16px, 2.5dvh, 30px); width: 90%; margin-bottom: clamp(5px, 1.5dvh, 15px); outline: none; transition: border-color 0.2s; border-radius: 0; }
+        .team-input:focus { border-color: var(--accent); }
+        .vs-text { color: #444; font-weight: bold; font-size: clamp(18px, 3dvh, 36px); margin-top: 0; }
+
+        /* 儲存按鈕貼齊底部 */
+        .save-btn { width: 100%; background: var(--success); color: black; font-weight: bold; padding: clamp(12px, 2dvh, 18px); border-radius: 12px; margin-top: 0; border: none; font-size: 18px; cursor: pointer; transition: opacity 0.2s; }
+        .save-btn:hover { opacity: 0.8; }
+
+        .drawer { position: fixed; top: 0; right: -280px; width: 250px; height: 100%; background: var(--card); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100; padding: 20px; box-shadow: -5px 0 15px rgba(0,0,0,0.5); }
+        .drawer.active { right: 0; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 95; backdrop-filter: blur(2px); }
+        .overlay.active { display: block; }
+        .fab { position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; background: var(--accent); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 32px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); border: none; color: white; cursor: pointer; transition: transform 0.2s; z-index: 90; }
+        .fab:hover { transform: scale(1.08); }
+        .icon-btn { background: none; border: none; cursor: pointer; padding: 8px; fill: white; display: flex; align-items: center; flex-shrink: 0; transition: opacity 0.2s; }
+        .icon-btn:hover { opacity: 0.7; }
+
+        /* iPad 及以上大螢幕響應式優化 */
+        @media (min-width: 768px) {
+            .view { padding: 40px; }
+            .controls { flex-direction: row; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+            .search-box { max-width: 400px; }
+            .action-btns button { padding: 12px 30px; }
+            .fab { bottom: 40px; right: 40px; }
+        }
+
+        html, body {
+            overscroll-behavior: none;
+            overflow-x: hidden;
+        }
+
+        /* 針對計分板畫面進行絕對固定 */
+        #scoreView {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 1800px;
+            height: 100dvh;
+            overflow: hidden;
+            background-color: var(--bg);
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js');
+        });
+    }
+</script>
+<div id="listView" class="view active">
+    <div class="header">
+        <h1 id="ui-title">比賽紀錄</h1>
+        <button class="icon-btn" onclick="toggleDrawer()">
+            <svg width="32" height="32" viewBox="0 0 24 24"><path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10,10-4.48,10-10S17.52,2,12,2z M11,19.93C7.05,19.44,4,16.08,4,12c0-0.35,0.02-0.7,0.07-1.04l5.07,5.07V17c0,1.1,0.9,2,2,2V19.93z M18.91,15.58c-0.33-0.35-0.79-0.58-1.3-0.58h-1.61v-3c0-0.55-0.45-1-1-1h-3v-2h2c0.55,0,1-0.45,1-1V6.5h0.41c1.01,0,1.91-0.39,2.59-1.03C19.58,6.82,20,9.35,20,12C20,13.29,19.6,14.49,18.91,15.58z"/></svg>
+        </button>
+    </div>
+    <div class="controls">
+        <div class="action-btns">
+            <button id="ui-export" onclick="exportData()">匯出</button>
+            <button id="ui-import" onclick="document.getElementById('fileInput').click()">匯入</button>
+            <button id="ui-clear-all" onclick="clearAllRecords()">清除</button>
+            <input type="file" id="fileInput" style="display:none" onchange="importData(this)">
+        </div>
+        <input type="text" id="search" class="search-box" placeholder="搜尋..." oninput="renderList()">
+    </div>
+    <div id="listContainer"></div>
+    <button class="fab" onclick="openScoreboard()">+</button>
+</div>
+
+<div id="scoreView" class="view">
+    <div class="score-wrapper">
+        <div class="header">
+            <button class="icon-btn" onclick="exitScoreboard()">
+                <svg width="32" height="32" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            </button>
+            <span id="currentDateDisplay" style="font-size: 20px; font-weight: bold;"></span>
+            <div style="width:32px"></div>
+        </div>
+        
+        <div class="timer-box">
+            <input type="text" id="display" value="10:00" onblur="formatTimerInput()" onfocus="this.select()" ondblclick="toggleTimer()">
+        </div>
+
+        <div class="teams">
+            <div class="team-container">
+                <input type="text" id="nameA" class="team-input" placeholder="Team A">
+                <div class="score-box" id="boxA" onpointerdown="handleScoreStart('A', event)" onpointerup="handleScoreEnd('A', event)" onpointercancel="handleScoreEnd('A', event)">
+                    <span id="scoreA">0</span>
+                </div>
+            </div>
+            <div class="vs-text">VS</div>
+            <div class="team-container">
+                <input type="text" id="nameB" class="team-input" placeholder="Team B">
+                <div class="score-box" id="boxB" onpointerdown="handleScoreStart('B', event)" onpointerup="handleScoreEnd('B', event)" onpointercancel="handleScoreEnd('B', event)">
+                    <span id="scoreB">0</span>
+                </div>
+            </div>
+        </div>
+        <button class="save-btn" id="ui-save" onclick="saveMatch()">儲存並結束</button>
+    </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="toggleDrawer()"></div>
+<div class="drawer" id="drawer">
+    <h3 id="ui-drawer-title">語言 Language</h3>
+    <button onclick="changeLang('zh')" style="width:100%; padding:15px; margin-bottom:10px; background:#333; color:white; border:none; border-radius:8px; cursor:pointer; font-size:16px;">繁體中文</button>
+    <button onclick="changeLang('en')" style="width:100%; padding:15px; background:#333; color:white; border:none; border-radius:8px; cursor:pointer; font-size:16px;">English</button>
+</div>
+
+<script>
+    let history = JSON.parse(localStorage.getItem('matchHistory') || '[]');
+    let currentEditIndex = null;
+    let timer, seconds = 600, isRunning = false;
+    let pressTimer, isLongPress = false;
+    let lang = localStorage.getItem('lang') || 'zh';
+
+    function showView(viewId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(viewId).classList.add('active');
+    }
+
+    function toggleDrawer() {
+        document.getElementById('drawer').classList.toggle('active');
+        document.getElementById('overlay').classList.toggle('active');
+    }
+
+    function changeLang(l) {
+        lang = l; localStorage.setItem('lang', l); applyLang(); toggleDrawer();
+    }
+
+    function applyLang() {
+        const i18n = {
+            zh: { title: "比賽紀錄", search: "搜尋...", export: "匯出", import: "匯入", clear: "清除", save: "儲存並結束", drawer: "語言" },
+            en: { title: "Match Record", search: "Search...", export: "Export", import: "Import", clear: "Clear", save: "SAVE & EXIT", drawer: "Language" }
+        };
+        const t = i18n[lang];
+        document.getElementById('ui-title').innerText = t.title;
+        document.getElementById('search').placeholder = t.search;
+        document.getElementById('ui-export').innerText = t.export;
+        document.getElementById('ui-import').innerText = t.import;
+        document.getElementById('ui-clear-all').innerText = t.clear;
+        document.getElementById('ui-save').innerText = t.save;
+        document.getElementById('ui-drawer-title').innerText = t.drawer;
+    }
+
+    function formatTimerInput() {
+        if (isRunning) return;
+        const display = document.getElementById('display');
+        let val = display.value;
+        if (!val.includes(':')) val = val + ":00";
+        let parts = val.split(':');
+        seconds = (parseInt(parts[0]) || 0) * 60 + (parseInt(parts[1]) || 0);
+        updateTimerUI();
+    }
+
+    function toggleTimer() {
+        const display = document.getElementById('display');
+        if (!isRunning) {
+            const parts = display.value.split(':');
+            seconds = (parseInt(parts[0]) || 0) * 60 + (parseInt(parts[1]) || 0);
+            if (seconds <= 0) return;
+            isRunning = true; display.readOnly = true; display.classList.add('running'); display.blur(); 
+            timer = setInterval(() => {
+                seconds--; updateTimerUI();
+                if (seconds <= 0) { clearInterval(timer); isRunning = false; display.readOnly = false; display.classList.remove('running'); }
+            }, 1000);
+        } else {
+            clearInterval(timer); isRunning = false; display.readOnly = false; display.classList.remove('running');
+        }
+    }
+
+    function updateTimerUI() {
+        let m = Math.floor(seconds / 60), s = seconds % 60;
+        document.getElementById('display').value = `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    function renderList() {
+        const container = document.getElementById('listContainer');
+        const search = document.getElementById('search').value.toLowerCase();
+        container.innerHTML = '';
+        history.slice().reverse().forEach((item, index) => {
+            const realIndex = history.length - 1 - index;
+            if (!`${item.date}${item.nameA}${item.nameB}`.toLowerCase().includes(search)) return;
+            const card = document.createElement('div');
+            card.className = 'match-card';
+            card.innerHTML = `<div class="match-info">
+                <div class="match-date">${item.date}</div>
+                <div class="match-time-tag">⏱ ${item.time || '--:--'}</div>
+                <div class="match-score">${item.nameA} ${item.scoreA} : ${item.scoreB} ${item.nameB}</div>
+            </div>
+            <div style="display:flex; gap:10px; flex-shrink: 0;">
+                <button class="icon-btn" onclick="openScoreboard(${realIndex})"><svg width="26" height="26" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c0.39-0.39 0.39-1.02 0-1.41l-2.34-2.34c-0.39-0.39-1.02-0.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>
+                <button class="icon-btn" onclick="deleteMatch(${realIndex})"><svg width="26" height="26" viewBox="0 0 24 24" style="fill:var(--danger)"><path d="M6 19c0 1.1 0.9 2 2 2h8c1.1 0 2-0.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
+            </div>`;
+            container.appendChild(card);
+        });
+    }
+
+    function openScoreboard(index = null) {
+        currentEditIndex = index; resetTimerState();
+        const display = document.getElementById('display');
+        display.readOnly = false; 
+        if (index !== null) {
+            const d = history[index];
+            document.getElementById('nameA').value = d.nameA; document.getElementById('scoreA').innerText = d.scoreA;
+            document.getElementById('nameB').value = d.nameB; document.getElementById('scoreB').innerText = d.scoreB;
+            document.getElementById('currentDateDisplay').innerText = d.date; display.value = d.time || "10:00";
+        } else {
+            document.getElementById('nameA').value = ''; document.getElementById('scoreA').innerText = '0';
+            document.getElementById('nameB').value = ''; document.getElementById('scoreB').innerText = '0';
+            document.getElementById('currentDateDisplay').innerText = new Date().toISOString().split('T')[0];
+            display.value = "10:00";
+        }
+        showView('scoreView');
+    }
+
+    function exitScoreboard() { resetTimerState(); showView('listView'); renderList(); }
+
+    function resetTimerState() {
+        clearInterval(timer); isRunning = false;
+        const display = document.getElementById('display');
+        if(display) { display.classList.remove('running'); display.readOnly = false; }
+    }
+
+    function handleScoreStart(team, e) {
+        if(e.pointerType === 'touch') e.preventDefault(); 
+        isLongPress = false;
+        const el = document.getElementById('score' + team);
+        pressTimer = setTimeout(() => {
+            isLongPress = true; el.contentEditable = "true"; el.focus();
+            const range = document.createRange(); range.selectNodeContents(el);
+            const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+            el.onblur = () => { el.contentEditable = "false"; if (isNaN(el.innerText) || el.innerText.trim() === "") el.innerText = "0"; };
+            el.onkeydown = (evt) => { if (evt.key === 'Enter') { evt.preventDefault(); el.blur(); } };
+        }, 600);
+    }
+
+    function handleScoreEnd(team, e) {
+        clearTimeout(pressTimer);
+        if (isLongPress) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        let el = document.getElementById('score' + team);
+        let s = parseInt(el.innerText);
+        el.innerText = (x < rect.width / 2) ? Math.max(0, s - 1) : s + 1;
+    }
+
+    function saveMatch() {
+        const data = {
+            date: document.getElementById('currentDateDisplay').innerText,
+            time: document.getElementById('display').value,
+            nameA: document.getElementById('nameA').value || "Team A", scoreA: document.getElementById('scoreA').innerText,
+            nameB: document.getElementById('nameB').value || "Team B", scoreB: document.getElementById('scoreB').innerText
+        };
+        if (currentEditIndex !== null) history[currentEditIndex] = data; else history.push(data);
+        localStorage.setItem('matchHistory', JSON.stringify(history)); exitScoreboard();
+    }
+
+    function deleteMatch(i) {
+        if (confirm(lang === 'zh' ? "確定刪除？" : "Delete?")) { history.splice(i, 1); localStorage.setItem('matchHistory', JSON.stringify(history)); renderList(); }
+    }
+
+    function exportData() {
+        const blob = new Blob([JSON.stringify(history)], {type: 'application/json'});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+        a.download = `matches_${new Date().getTime()}.json`; a.click();
+    }
+
+    function importData(input) {
+        const reader = new FileReader();
+        reader.onload = () => { try { history = JSON.parse(reader.result); localStorage.setItem('matchHistory', JSON.stringify(history)); renderList(); } catch(e) { alert("Error."); } };
+        reader.readAsText(input.files[0]);
+    }
+
+    function clearAllRecords() {
+        const msg = lang === 'zh' ? "確定要清除「所有」比賽紀錄嗎？\n此動作無法復原。" : "Are you sure you want to clear ALL records?\nThis cannot be undone.";
+        if (confirm(msg)) {
+            history = []; 
+            localStorage.setItem('matchHistory', JSON.stringify(history)); 
+            renderList(); 
+        }
+    }
+
+    applyLang(); renderList();
+</script>
+</body>
+</html>
