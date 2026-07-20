@@ -2,6 +2,7 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
+    <link rel="manifest" href="manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>賭博默示錄-地下王國</title>
     <style>
@@ -146,11 +147,6 @@
             text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         }
 
-        .hb-small  { left: 0; top: 0; width: 10%; height: 100%; background: rgba(10, 132, 255, 0.6); }
-        .hb-big    { right: 0; top: 0; width: 10%; height: 100%; background: rgba(255, 69, 58, 0.6); }
-        .hb-triple { left: 10%; top: 0; width: 80%; height: 15%; background: rgba(255, 214, 10, 0.7); color: #000; text-shadow: none; }
-        .hb-normal { left: 10%; top: 15%; width: 80%; height: 85%; background: rgba(48, 209, 88, 0.6); }
-
         /* 結果顯示 */
         .result { 
             position: relative;
@@ -220,18 +216,11 @@
         <div class="dice-container" id="diceBox">⚀ ⚀ ⚀</div>
         
         <div class="btn-wrapper" id="btnWrapper">
-            <button class="btn" id="rollBtn">開始搖骰</button>
+            <button class="btn" id="rollBtn" onclick="startRollAnimation()">開始搖骰</button>
             
-            <div class="hitbox-overlay" id="hitboxOverlay">
-                <div class="hitbox hb-small">細+20%</div>
-                <div class="hitbox hb-triple">圍骰+50%</div>
-                <div class="hitbox hb-normal">正常隨機</div>
-                <div class="hitbox hb-big">大+20%</div>
-            </div>
         </div>
         
         <div class="result" id="resultBox"></div>
-        <!-- <div class="tip">提示：現已預設顯示 Hitbox。仍可按鍵盤 [H] 鍵臨時開啟/關閉</div> -->
     </div>
 
     <!-- 右邊：歷史趨勢面板 -->
@@ -243,40 +232,6 @@
     <script>
         let historyList = [];
         const diceIcons = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-        let activeCheatMode = "normal"; 
-        let isHitboxVisible = true;
-
-        window.addEventListener('keydown', function(e) {
-            if (e.key.toLowerCase() === 'h') {
-                isHitboxVisible = !isHitboxVisible;
-                document.getElementById('hitboxOverlay').style.display = isHitboxVisible ? 'block' : 'none';
-            }
-        });
-
-        document.getElementById('btnWrapper').addEventListener('click', function(e) {
-            const btn = document.getElementById('rollBtn');
-            if (btn.disabled) return;
-
-            const rect = this.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            const clickY = e.clientY - rect.top;
-            const percentX = (clickX / rect.width) * 100;
-            const percentY = (clickY / rect.height) * 100;
-
-            if (percentX <= 10) {
-                activeCheatMode = "cheat_small"; 
-            } else if (percentX >= 90) {
-                activeCheatMode = "cheat_big";   
-            } else {
-                if (percentY <= 15) {
-                    activeCheatMode = "cheat_triple"; 
-                } else {
-                    activeCheatMode = "normal";       
-                }
-            }
-
-            startRollAnimation();
-        });
 
         function startRollAnimation() {
             const btn = document.getElementById('rollBtn');
@@ -298,49 +253,15 @@
             }, 50);
         }
 
-        function generateDiceData(mode) {
-            let d1, d2, d3, total;
-            if (mode === "triple") {
-                let num = Math.floor(Math.random() * 6) + 1;
-                return [num, num, num];
-            }
-            do {
-                d1 = Math.floor(Math.random() * 6) + 1;
-                d2 = Math.floor(Math.random() * 6) + 1;
-                d3 = Math.floor(Math.random() * 6) + 1;
-                total = d1 + d2 + d3;
-            } while (d1 === d2 && d2 === d3 || (mode === "big" && total < 11) || (mode === "small" && total >= 11));
-            return [d1, d2, d3];
-        }
-
         function finalizeResult() {
             let d1, d2, d3;
             let diceResult = [];
             let rng = Math.random() * 100; 
 
-            if (activeCheatMode === "cheat_small") {
-                diceResult = rng <= 100 ? generateDiceData("small") : generateDiceData("big");
-            } 
-            else if (activeCheatMode === "cheat_big") {
-                diceResult = rng <= 100 ? generateDiceData("big") : generateDiceData("small");
-            } 
-            else if (activeCheatMode === "cheat_triple") {
-                if (rng <= 100) {
-                    diceResult = generateDiceData("triple");
-                } else {
-                    diceResult = Math.random() < 0.5 ? generateDiceData("big") : generateDiceData("small");
-                }
-            } 
-            else {
-                d1 = Math.floor(Math.random() * 6) + 1;
-                d2 = Math.floor(Math.random() * 6) + 1;
-                d3 = Math.floor(Math.random() * 6) + 1;
-                diceResult = [d1, d2, d3];
-            }
 
-            d1 = diceResult[0];
-            d2 = diceResult[1];
-            d3 = diceResult[2];
+            d1 = Math.floor(Math.random() * 6) + 1;
+            d2 = Math.floor(Math.random() * 6) + 1;
+            d3 = Math.floor(Math.random() * 6) + 1;
 
             document.getElementById('diceBox').innerText = `${diceIcons[d1-1]} ${diceIcons[d2-1]} ${diceIcons[d3-1]}`;
             
