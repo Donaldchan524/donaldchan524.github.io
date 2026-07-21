@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>數獨 Sudoku</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { background-color: #f4f7f6; color: #333; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
+    
+    header { text-align: center; margin-bottom: 20px; }
+    h1 { color: #2c3e50; margin-bottom: 10px; }
+    
+    .screen { width: 100%; max-width: 500px; display: none; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .screen.active { display: block; }
+    
+    /* 封面關卡列表 */
+    .section-title { font-size: 1.2rem; font-weight: bold; margin: 15px 0 10px; color: #34495e; border-bottom: 2px solid #ecf0f1; padding-bottom: 5px; }
+    /* .level-row { display: flex; gap: 12px; overflow-x: auto; padding: 10px 5px 15px; } */
+    
+
+    /* 關卡列表響應式佈局 */
+    .level-row { display: grid; gap: 12px; padding: 10px 0 20px; grid-template-columns: repeat(3, 1fr); }
+
+    /* 中等螢幕（平板 / 大手機 寬度 >= 480px）：4 Column */
+    @media (min-width: 480px) {.level-row {grid-template-columns: repeat(4, 1fr);}}
+
+    /* 大螢幕（電腦 / 平板橫向 寬度 >= 640px）：5 Column */
+    @media (min-width: 640px) {.level-row {grid-template-columns: repeat(5, 1fr);}}
+
+    /* 為了讓關卡卡片在 Grid 裡面寬度適中，同時讓容器最大寬度加寬少少 */
+    .screen { width: 100%; max-width: 600px; /* 原本 500px，適度加寬讓 5 column 更好看 */ background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: none;}
+
+    /* 關卡按鈕尺寸調整，使其自動填滿 Grid 欄位 */
+    .level-btn { position: relative; width: 100%; /* 讓按鈕寬度自動跟隨 Grid 欄位 */height: 55px; background-color: #3498db; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+
+    /* 關卡按鈕與右上角綠剔 */
+    .level-btn { position: relative; min-width: 80px; height: 50px; background-color: #3498db; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+    .level-btn:hover { background-color: #2980b9; transform: translateY(-2px); }
+        
+    /* 綠剔 Badges */
+    .level-btn.completed::after {content: '✓'; position: absolute; top: -6px; right: -6px; background: #2ecc71; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
+        
+    /* 遊戲區域 */
+    .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .back-btn { background: #95a5a6; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .back-btn:hover { background: #7f8c8d; }
+    
+    .sudoku-board { display: grid; gap: 1px; background-color: #2c3e50; border: 3px solid #2c3e50; margin: 0 auto 20px; width: 100%; aspect-ratio: 1; border-radius: 4px; overflow: hidden; }
+    .sudoku-board.grid-6 { grid-template-columns: repeat(6, 1fr); }
+    .sudoku-board.grid-9 { grid-template-columns: repeat(9, 1fr); }
+    
+    .cell { background: white; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; cursor: pointer; user-select: none; }
+    .cell.given { background-color: #ecf0f1; color: #2c3e50; cursor: not-allowed; }
+    .cell.selected { background-color: #d6eaf8 !important; }
+    .cell.user-filled { color: #2980b9; }
+
+    /* --- 6x6 粗線分區 (每 3 欄直邊框加粗、每 2 行橫邊框加粗) --- */
+    .grid-6 .cell:nth-child(3n) { border-right: 2px solid #2c3e50; }
+    .grid-6 .cell:nth-child(n+13):nth-child(-n+18),
+    .grid-6 .cell:nth-child(n+25):nth-child(-n+30) {border-top: 2px solid #2c3e50;}
+
+    /* --- 9x9 粗線分區 (每 3 欄直邊框加粗、每 3 行橫邊框加粗) --- */
+    .grid-9 .cell:nth-child(3n) { border-right: 2px solid #2c3e50; }
+    .grid-9 .cell:nth-child(n+28):nth-child(-n+36),
+    .grid-9 .cell:nth-child(n+55):nth-child(-n+63) { border-top: 2px solid #2c3e50; }
+
+    /* 底部分數字鍵盤 */
+    .keypad { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 15px; }
+    .num-btn { flex: 1; min-width: 38px; height: 45px; background: #e8f4f8; border: 1px solid #b3e5fc; border-radius: 6px; font-size: 1.2rem; font-weight: bold; color: #0277bd; cursor: pointer; }
+    .num-btn:hover { background: #b3e5fc; }
+    .clear-btn { background: #ffecb3; border-color: #ffe082; color: #f57f17; }
+    .clear-btn:hover { background: #ffe082; }
+
+    /* 提交按鈕 */
+    .submit-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: none; /* 預設隱藏，只有填滿時顯示 */
+      transition: 0.2s;
+    }
+    .submit-btn:hover { background-color: #27ae60; }
+
+
+    /* --- 新增：數獨棋盤高亮樣式 --- */
+
+    /* 1. 與選取格【同數字】的所有格子 (最深藍) */
+    .cell.highlight-same-num {
+      background-color: #bbdefb !important; /* Material Blue 100 */
+    }
+
+    /* 2. 選取格所在的【行與列】 (較淺藍) */
+    .cell.highlight-related {
+      background-color: #e3f2fd !important; /* Material Blue 50 */
+    }
+
+    /* 3. 【選取格】本身 (保持原本的樣式，但確保它層級最高) */
+    .cell.selected {
+      background-color: #90caf9 !important; /* Material Blue 200 */
+      outline: 2px solid #1976d2; /* 加個深藍色框 */
+      z-index: 1; /* 確保框線在最上層 */
+    }
+
+    /* 確保預設數字 (given) 即使在高亮下也能看清背景差異 */
+    .cell.given.highlight-related {
+      background-color: #d1e9f1 !important; /* 稍微深色少少的相關高亮 */
+    }
+    .cell.given.highlight-same-num {
+      background-color: #a9d4f5 !important;
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>數獨 Sudoku</h1>
+  </header>
+
+  <!-- 1. 封面選關頁面 -->
+  <div id="home-screen" class="screen active">
+    <div class="section-title">6 x 6 關卡</div>
+    <div id="row-6x6" class="level-row"></div>
+
+    <div class="section-title">9 x 9 關卡</div>
+    <div id="row-9x9" class="level-row"></div>
+  </div>
+
+  <!-- 2. 關卡內遊戲頁面 -->
+  <div id="game-screen" class="screen">
+    <div class="game-header">
+      <button class="back-btn" onclick="showHomeScreen()">← 返回首頁</button>
+      <h2 id="game-title">關卡</h2>
+    </div>
+
+    <!-- 數獨棋盤 -->
+    <div id="sudoku-board" class="sudoku-board"></div>
+
+    <!-- 數字輸入按鈕區 -->
+    <div id="keypad" class="keypad"></div>
+
+    <!-- 提交檢查按鈕 -->
+    <button id="submit-btn" class="submit-btn" onclick="checkAnswer()">提交答案</button>
+  </div>
+
+  <script src="questions.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
