@@ -117,6 +117,72 @@
       background-color: #a9d4f5 !important;
     }
 
+    /* 預設隱藏 */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s ease;
+      z-index: 999;
+    }
+
+    /* 加上 active 時顯示 */
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: white;
+      width: 85%;
+      max-width: 320px;
+      padding: 25px 20px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      transform: scale(0.8);
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: scale(1); /* 彈出放大效果 */
+    }
+
+    .modal-icon {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+
+    .modal-title {
+      font-size: 1.3rem;
+      color: #2c3e50;
+      margin-bottom: 8px;
+    }
+
+    .modal-msg {
+      font-size: 0.95rem;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .modal-btn {
+      width: 100%;
+      padding: 10px 0;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .modal-btn:hover {
+      background-color: #2980b9;
+    }
   </style>
 </head>
 <body>
@@ -151,7 +217,19 @@
     <button id="submit-btn" class="submit-btn" onclick="checkAnswer()">提交答案</button>
   </div>
 
+  <!-- 結果提示彈窗 (Modal) -->
+  <div id="result-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div id="modal-icon" class="modal-icon">🎉</div>
+      <h3 id="modal-title" class="modal-title">挑戰成功！</h3>
+      <p id="modal-msg" class="modal-msg">恭喜你，答案完全正確！</p>
+      <button class="modal-btn" onclick="closeModal()">確定</button>
+    </div>
+  </div>
+
   <script src="questions.js"></script>
   <script src="script.js"></script>
+
+
 </body>
 </html>

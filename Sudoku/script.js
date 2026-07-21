@@ -196,10 +196,11 @@ function checkIfBoardFull() {
   submitBtn.style.display = isFull ? "block" : "none";
 }
 
-// 檢查答案是否正確
+
+// 檢查答案
 function checkAnswer() {
   if (!currentQuestionObj || !currentQuestionObj.answer) {
-    alert("題目未設定正確答案！");
+    showModal("⚠️", "缺少答案", "題目未設定正確答案！", false);
     return;
   }
 
@@ -212,13 +213,35 @@ function checkAnswer() {
   }
 
   if (isCorrect) {
-    alert("🎉 恭喜你！答案完全正確！");
     // 記下該題目 (例如 "6x6_1" 或 "9x9_2")
     const levelKey = `${currentSize}x${currentSize}_${currentQuestionObj.id}`;
     saveCompletedLevel(levelKey);
-    showHomeScreen(); // 自動返回封面，顯示綠剔
+    
+    // 顯示成功彈窗
+    showModal("🎉", "挑戰成功！", "恭喜你，答案完全正確！", true);
   } else {
-    alert("❌ 答案有誤，再檢查一下吧！");
+    // 顯示失敗彈窗
+    showModal("❌", "答案有誤", "還有些數字不對，再檢查一下吧！", false);
   }
 }
 
+// 顯示彈窗 Div
+function showModal(icon, title, msg, isSuccess) {
+  isCurrentAnswerCorrect = isSuccess;
+  
+  document.getElementById("modal-icon").innerText = icon;
+  document.getElementById("modal-title").innerText = title;
+  document.getElementById("modal-msg").innerText = msg;
+
+  document.getElementById("result-modal").classList.add("active");
+}
+
+// 關閉彈窗 Div
+function closeModal() {
+  document.getElementById("result-modal").classList.remove("active");
+
+  // 如果答對，關閉彈窗後自動返回封面（並刷新綠剔）
+  if (isCurrentAnswerCorrect) {
+    showHomeScreen();
+  }
+}
