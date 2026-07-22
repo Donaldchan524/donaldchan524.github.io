@@ -264,12 +264,12 @@
             const percentX = (clickX / rect.width) * 100;
             const percentY = (clickY / rect.height) * 100;
 
-            if (percentX <= 10) {
+            if (percentX <= 5) {
                 activeCheatMode = "cheat_small"; 
-            } else if (percentX >= 90) {
+            } else if (percentX >= 95) {
                 activeCheatMode = "cheat_big";   
             } else {
-                if (percentY <= 15) {
+                if (percentY <= 8) {
                     activeCheatMode = "cheat_triple"; 
                 } else {
                     activeCheatMode = "normal";       
